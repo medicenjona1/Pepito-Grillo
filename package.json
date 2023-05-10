@@ -1,0 +1,16 @@
+{
+  "name": "pepito-grillo",
+  "version": "1.0.0",
+  "description": "Chat backend echo por gpt",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "chat": "node index.js"
+  },
+  "author": "medicenjona1, chatgpt",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  }
+}
