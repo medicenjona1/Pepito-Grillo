@@ -1,94 +1,118 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Chat en tiempo real</title>
-    <style>
-      /* Estilo para el encabezado */
-      h1 {
-        background-color: #7289da;
-        color: #fff;
-        padding: 10px;
-        margin: 0;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat en tiempo real</title>
+  <style>
+    /* Estilo para el encabezado */
+    h1 {
+      background-color: #7289da;
+      color: #fff;
+      padding: 10px;
+      margin: 0;
+    }
 
-      /* Estilo para los mensajes */
-      #mensajes {
-        height: 400px;
-        overflow-y: scroll;
-        padding: 10px;
-        background-color: #36393f;
-        color: #fff;
-      }
+    /* Estilo para los mensajes */
+    #mensajes {
+      height: 400px;
+      overflow-y: scroll;
+      padding: 10px;
+      background-color: #36393f;
+      color: #fff;
+    }
 
-      /* Estilo para el formulario */
-      #formulario {
-        padding: 10px;
-        background-color: #40444b;
-      }
+    /* Estilo para el formulario */
+    #formulario {
+      padding: 10px;
+      background-color: #40444b;
+    }
 
-      /* Estilo para el campo de texto del mensaje */
-      #mensaje {
-        width: 100%;
-        padding: 10px;
-        margin-right: 10px;
-        background-color: #202225;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        outline: none;
-      }
+    /* Estilo para el campo de texto del mensaje */
+    #mensaje {
+      width: 100%;
+      padding: 10px;
+      margin-right: 10px;
+      background-color: #202225;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
 
-      /* Estilo para el botón de enviar */
-      #formulario button {
-        padding: 10px;
-        background-color: #7289da;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Chat en tiempo real</h1>
+    /* Estilo para el botón de enviar */
+    #formulario button {
+      padding: 10px;
+      background-color: #7289da;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-    <div id="mensajes"></div>
+    /* Estilo para la lista de usuarios conectados */
+    #usuarios-conectados {
+      width: 200px;
+      height: 400px;
+      overflow-y: scroll;
+      padding: 10px;
+      background-color: #2f3136;
+      color: #fff;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat en tiempo real</h1>
 
-    <form id="formulario">
-      <input type="text" id="mensaje" />
-      <button type="submit">Enviar</button>
-    </form>
+  <div id="mensajes"></div>
+  <div id="usuarios-conectados"></div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
+  <form id="formulario">
+    <input type="text" id="mensaje" />
+    <button type="submit">Enviar</button>
+  </form>
 
-      // Cuando se envía el formulario
-      const formulario = document.getElementById("formulario");
-      formulario.addEventListener("submit", (event) => {
-        event.preventDefault();
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
 
-        const mensaje = document.getElementById("mensaje").value;
+    // Cuando se envía el formulario
+    const formulario = document.getElementById("formulario");
+    formulario.addEventListener("submit", (event) => {
+      event.preventDefault();
 
-        // Enviar el mensaje al servidor
-        socket.emit("enviar-mensaje", mensaje);
+      const mensaje = document.getElementById("mensaje").value;
 
-        // Limpiar el campo de texto del mensaje
-        document.getElementById("mensaje").value = "";
+      // Enviar el mensaje al servidor
+      socket.emit("enviar-mensaje", mensaje);
+
+      // Limpiar el campo de texto del mensaje
+      document.getElementById("mensaje").value = "";
+    });
+
+    // Cuando se recibe un mensaje del servidor
+    const mensajes = document.getElementById("mensajes");
+    socket.on("mensaje", (datos) => {
+      const nuevoMensaje = document.createElement("div");
+      nuevoMensaje.innerText = `${datos.autor}: ${datos.mensaje}`;
+      mensajes.appendChild(nuevoMensaje);
+    });
+
+    // Cuando se recibe la lista de usuarios conectados del servidor
+    const usuariosConectados = document.getElementById("usuarios-conectados");
+    socket.on("usuarios-conectados", (usuarios) => {
+      usuariosConectados.innerHTML = "";
+
+      usuarios.forEach((usuario) => {
+        const nuevoUsuario = document.createElement("div");
+        nuevoUsuario.innerText = usuario;
+        usuariosConectados.appendChild(nuevoUsuario);
       });
+    });
 
-      // Cuando se recibe un mensaje del servidor
-      const mensajes = document.getElementById("mensajes");
-      socket.on("mensaje", (datos) => {
-        const nuevoMensaje = document.createElement("div");
-        nuevoMensaje.innerText = `${datos.autor}: ${datos.mensaje}`;
-        mensajes.appendChild(nuevoMensaje);
-      });
-
-      // Pedir al usuario que se una al chat
-      const nombre = prompt("Por favor, ingrese su nombre:");
-      socket.emit("unirse-al-chat", nombre);
-    </script>
-  </body>
+    // Pedir al usuario que se una al chat
+    const nombre = prompt("Por favor, ingrese su nombre:");
+    socket.emit("unirse-al-chat", nombre);
+  </script>
+</body>
 </html>
